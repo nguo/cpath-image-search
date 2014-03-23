@@ -11,7 +11,9 @@
 		android:id="@+id/etSearch"
 		android:layout_centerHorizontal="true"
 		android:layout_alignParentTop="true"
-		android:hint="@string/search_hint"/>
+		android:hint="@string/search_hint"
+		android:imeOptions="actionSearch"
+		android:inputType="text" />
 
 	<GridView
 			android:layout_width="match_parent"
