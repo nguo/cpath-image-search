@@ -6,10 +6,14 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+/**
+ * ImageResult - contains info about an image
+ */
 public class ImageResult {
 	private String fullUrl;
 	private String thumbUrl;
 
+	/** constructor */
 	public ImageResult(JSONObject json) {
 		try {
 			fullUrl = json.getString("url");
@@ -27,6 +31,11 @@ public class ImageResult {
 
 	/** getter for thumb url */
 	public String getThumbUrl() {
+		return thumbUrl;
+	}
+
+	@Override
+	public String toString() {
 		return thumbUrl;
 	}
 

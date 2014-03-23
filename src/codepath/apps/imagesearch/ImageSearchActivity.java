@@ -26,6 +26,8 @@ public class ImageSearchActivity extends Activity {
 
 	/** list of image results we got back from the query */
 	ArrayList<ImageResult> imagesResults = new ArrayList<ImageResult>();
+	/** array adapater for image results */
+	ImageResultArrayAdapter imageAdapter;
 
 	/**
 	 * Called when the activity is first created.
@@ -35,6 +37,8 @@ public class ImageSearchActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_image_search);
 		setupViews();
+		imageAdapter = new ImageResultArrayAdapter(this, imagesResults);
+		gvResults.setAdapter(imageAdapter);
 	}
 
 	/** setup the views variables */
@@ -73,7 +77,7 @@ public class ImageSearchActivity extends Activity {
 						try {
 							imageJsonResults = response.getJSONObject("responseData").getJSONArray("results");
 							imagesResults.clear();
-							imagesResults.addAll(ImageResult.fromJSONArray(imageJsonResults));
+							imageAdapter.addAll(ImageResult.fromJSONArray(imageJsonResults));
 							Log.d("DEBUG", imagesResults.toString());
 						} catch (JSONException e) {
 							e.printStackTrace();;
