@@ -22,7 +22,7 @@ public class ImageSearchActivity extends Activity {
 	/** key for the extra param to pass with the intent */
 	public static final String IMAGE_RESULT_EXTRA = "image_result";
 	/** number of requests to send for each query */
-	public static final int NUM_REQUESTS_PER_QUERY = 4;
+	public static final int NUM_REQUESTS_PER_QUERY = 3;
 	/** number of images to request */
 	public static final int NUM_IMAGES_PER_REQUEST = 8;
 	/** edit text to type in search term */
@@ -79,6 +79,12 @@ public class ImageSearchActivity extends Activity {
 				return false;
 			}
 		});
+		gvResults.setOnScrollListener(new EndlessScrollListener() {
+			@Override
+			public void onLoadMore(int page, int totalItemsCount) {
+				requestMoreImages(page);
+			}
+		});
 	}
 
 	/** hides the software keyboard */
@@ -100,6 +106,11 @@ public class ImageSearchActivity extends Activity {
 		imagesResults.clear();
 		currentQuery = etSearch.getText().toString();
 		Toast.makeText(this, "Searching for " + currentQuery + "...", Toast.LENGTH_SHORT).show();
+		makeImageQueries();
+	}
+
+	/** request more images */
+	private void requestMoreImages(int page) {
 		makeImageQueries();
 	}
 
