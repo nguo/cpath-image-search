@@ -29,6 +29,10 @@ public class ImageSearchActivity extends Activity {
 	private EditText etSearch;
 	/** grid view of image results */
 	private GridView gvResults;
+	/** image button for search button */
+	private ImageButton ibtnSearch;
+	/** image button for settings button */
+	private ImageButton ibtnSettings;
 
 	/** list of image results we got back from the query */
 	private ArrayList<ImageResult> imagesResults = new ArrayList<ImageResult>();
@@ -46,6 +50,7 @@ public class ImageSearchActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_image_search);
+		getActionBar().setDisplayShowTitleEnabled(false);
 		resetCurrentIndex();
 		setupViews();
 		imageAdapter = new ImageResultArrayAdapter(this, imagesResults);
@@ -53,9 +58,22 @@ public class ImageSearchActivity extends Activity {
 		setupListeners();
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater menuInflater = getMenuInflater();
+		menuInflater.inflate(R.menu.main, menu);
+		MenuItem mi = menu.findItem(R.id.miEditText);
+		View v = mi.getActionView();
+		ibtnSearch = (ImageButton) v.findViewById(R.id.ibtnSearch);
+		ibtnSettings = (ImageButton) v.findViewById(R.id.ibtnSettings);
+		etSearch = (EditText) v.findViewById(R.id.editText);
+		setupMenuItemListeners();
+		return true;
+	}
+
 	/** setup the views variables */
 	private void setupViews() {
-		etSearch = (EditText) findViewById(R.id.etSearch);
+		//etSearch = (EditText) findViewById(R.id.etSearch);
 		gvResults = (GridView) findViewById(R.id.gvResults);
 	}
 
@@ -69,6 +87,16 @@ public class ImageSearchActivity extends Activity {
 				startActivity(i);
 			}
 		});
+		gvResults.setOnScrollListener(new EndlessScrollListener() {
+			@Override
+			public void onLoadMore(int page, int totalItemsCount) {
+				requestMoreImages(page);
+			}
+		});
+	}
+
+	/** setup listeners for the views inside the action bar */
+	private void setupMenuItemListeners() {
 		etSearch.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -79,10 +107,16 @@ public class ImageSearchActivity extends Activity {
 				return false;
 			}
 		});
-		gvResults.setOnScrollListener(new EndlessScrollListener() {
+		ibtnSettings.setOnClickListener(new View.OnClickListener() {
 			@Override
-			public void onLoadMore(int page, int totalItemsCount) {
-				requestMoreImages(page);
+			public void onClick(View v) {
+				onSettingsClick(null);
+			}
+		});
+		ibtnSearch.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				onSearchClick(null);
 			}
 		});
 	}
@@ -92,11 +126,8 @@ public class ImageSearchActivity extends Activity {
 		((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(v.getWindowToken(), 0);
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater menuInflater = getMenuInflater();
-		menuInflater.inflate(R.menu.main, menu);
-		return true;
+	public void onSettingsClick(MenuItem mi) {
+
 	}
 
 	/** settings menu callback */

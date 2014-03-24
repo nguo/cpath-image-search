@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+			  android:layout_width="match_parent"
+			  android:layout_height="match_parent">
+
+	<EditText
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignParentLeft="true"
+			android:layout_alignParentTop="true"
+			android:hint="@string/search_hint"
+			android:imeOptions="actionSearch"
+			android:inputType="text"
+			android:id="@+id/editText"/>
+
+	<ImageButton
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/ic_search"
+			android:id="@+id/ibtnSearch"
+			android:background="@null"
+			android:contentDescription="@string/search_desc"
+			android:layout_alignRight="@+id/editText"
+			android:layout_alignParentTop="true"/>
+
+	<ImageButton
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/ic_gear"
+			android:id="@+id/ibtnSettings"
+			android:background="@null"
+			android:contentDescription="@string/settings_desc"
+			android:layout_toLeftOf="@+id/ibtnSearch"
+			android:layout_alignTop="@+id/editText"/>
+</RelativeLayout>

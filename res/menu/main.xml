@@ -2,8 +2,7 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 	<item
-		android:id="@+id/miSearch"
-		android:icon="@drawable/ic_launcher"
-		android:onClick="onSearchClick"
-		android:showAsAction="always" />
+			android:id="@+id/miEditText"
+			android:actionLayout="@layout/menu_edit"
+			android:showAsAction="always" />
 </menu>

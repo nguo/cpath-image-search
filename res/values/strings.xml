@@ -2,4 +2,6 @@
 <resources>
 	<string name="app_name">Image Search</string>
 	<string name="search_hint">Enter Search Term</string>
+	<string name="search_desc">Search for Images</string>
+	<string name="settings_desc">Settings</string>
 </resources>
