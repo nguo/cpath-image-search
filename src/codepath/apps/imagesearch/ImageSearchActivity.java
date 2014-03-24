@@ -12,19 +12,27 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import org.apache.commons.io.FileUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class ImageSearchActivity extends Activity {
-	/** key for the extra param to pass with the intent */
+	/** key for the extra param to pass with the intent between the image result activity */
 	public static final String IMAGE_RESULT_EXTRA = "image_result";
+	/** key for the extra param to pass between the settings activity */
+	public static final String SETTINGS_EXTRA = "settings";
+	/** request code to send to the settings activity */
+	public static final int SETTINGS_REQUEST_CODE = 11;
 	/** number of requests to send for each query */
 	public static final int NUM_REQUESTS_PER_QUERY = 3;
 	/** number of images to request */
 	public static final int NUM_IMAGES_PER_REQUEST = 8;
+
 	/** edit text to type in search term */
 	private EditText etSearch;
 	/** grid view of image results */
@@ -42,6 +50,8 @@ public class ImageSearchActivity extends Activity {
 	private int currentIndex = 0;
 	/** the current, latest image query term */
 	private String currentQuery = "";
+	/** settings config */
+	private SettingsConfig settingsConfig;
 
 	/**
 	 * Called when the activity is first created.
@@ -53,6 +63,7 @@ public class ImageSearchActivity extends Activity {
 		getActionBar().setDisplayShowTitleEnabled(false);
 		resetCurrentIndex();
 		setupViews();
+		setupSettingsConfig();
 		imageAdapter = new ImageResultArrayAdapter(this, imagesResults);
 		gvResults.setAdapter(imageAdapter);
 		setupListeners();
@@ -76,6 +87,29 @@ public class ImageSearchActivity extends Activity {
 		gvResults = (GridView) findViewById(R.id.gvResults);
 	}
 
+	/** setup the setting config object */
+	private void setupSettingsConfig() {
+		File filesDir = getFilesDir();
+		File settingsFile = new File(filesDir, "image_search_settings.txt");
+		try {
+			String content = FileUtils.readFileToString(settingsFile);
+			Log.d("json", content);
+			JSONObject json = new JSONObject(content);
+			settingsConfig = new SettingsConfig(json.getString(SettingsActivity.IMG_SIZE_KEY),
+					json.getString(SettingsActivity.IMG_COLOR_KEY),
+					json.getString(SettingsActivity.IMG_TYPE_KEY),
+					json.getString(SettingsActivity.IMG_SITE_KEY));
+		} catch (IOException e) {
+			settingsConfig = new SettingsConfig();
+			Log.d("json", "io exception");
+			e.printStackTrace();
+		} catch (JSONException e) {
+			settingsConfig = new SettingsConfig();
+			Log.d("json", "json exception");
+			e.printStackTrace();
+		}
+	}
+
 	/** setup listeners for the views */
 	private void setupListeners() {
 		gvResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -89,7 +123,7 @@ public class ImageSearchActivity extends Activity {
 		gvResults.setOnScrollListener(new EndlessScrollListener() {
 			@Override
 			public void onLoadMore(int page, int totalItemsCount) {
-				requestMoreImages(page);
+				requestMoreImages();
 			}
 		});
 	}
@@ -125,22 +159,40 @@ public class ImageSearchActivity extends Activity {
 		((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(v.getWindowToken(), 0);
 	}
 
-	public void onSettingsClick(MenuItem mi) {
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (resultCode == RESULT_OK && requestCode == SETTINGS_REQUEST_CODE) {
+			settingsConfig = (SettingsConfig) data.getSerializableExtra(SETTINGS_EXTRA);
+			makeNewImageQueries();
+		}
+	}
 
+	/** callback when settings menu button is clicked */
+	public void onSettingsClick(MenuItem mi) {
+		Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
+		i.putExtra(SETTINGS_EXTRA, settingsConfig);
+		startActivityForResult(i, SETTINGS_REQUEST_CODE);
 	}
 
 	/** settings menu callback */
 	public void onSearchClick(MenuItem mi) {
 		hideKeyboard(etSearch);
+		makeNewImageQueries();
+	}
+
+	/** makes new image queries (clears out old info) */
+	private void makeNewImageQueries() {
 		resetCurrentIndex();
 		imagesResults.clear();
 		currentQuery = etSearch.getText().toString();
-		Toast.makeText(this, "Searching for " + currentQuery + "...", Toast.LENGTH_SHORT).show();
-		makeImageQueries();
+		if (currentQuery.length() > 0) {
+			Toast.makeText(this, "Searching for " + currentQuery + "...", Toast.LENGTH_SHORT).show();
+			makeImageQueries();
+		}
 	}
 
 	/** request more images */
-	private void requestMoreImages(int page) {
+	private void requestMoreImages() {
 		makeImageQueries();
 	}
 
@@ -167,7 +219,11 @@ public class ImageSearchActivity extends Activity {
 		client.get("https://ajax.googleapis.com/ajax/services/search/images?"
 					+ "rsz=" + NUM_IMAGES_PER_REQUEST
 					+ "&start=" + startIndex
-					+ "&v=1.0&q=" + Uri.encode(query),
+					+ "&v=1.0&q=" + Uri.encode(query)
+					+ "&imgsz=" + settingsConfig.getImgsz()
+					+ "&imgcolor=" + settingsConfig.getImgcolor()
+					+ "&imgtype=" + settingsConfig.getImgtype()
+					+ "&as_sitesearch=" + settingsConfig.getSite(),
 				new JsonHttpResponseHandler() {
 					@Override
 					public void onSuccess(JSONObject response) {
@@ -176,7 +232,7 @@ public class ImageSearchActivity extends Activity {
 							imageAdapter.addAll(ImageResult.fromJSONArray(imageJsonResults));
 							Log.d("DEBUG", imagesResults.toString());
 						} catch (JSONException e) {
-							e.printStackTrace();;
+							e.printStackTrace();
 						}
 					}
 				});

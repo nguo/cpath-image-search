@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.os.Bundle;
 import com.loopj.android.image.SmartImageView;
 
-
+/**
+ * ImageDisplayActivity - activity that displays the full image and related info
+ */
 public class ImageDisplayActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

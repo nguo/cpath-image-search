@@ -4,4 +4,10 @@
 	<string name="search_hint">Enter Search Term</string>
 	<string name="search_desc">Search for Images</string>
 	<string name="settings_desc">Settings</string>
+	<string name="image_size">Image Size</string>
+	<string name="image_type">Image Type</string>
+	<string name="image_color">Image Color</string>
+	<string name="image_site">Image Site</string>
+	<string name="image_site_hint">example.com</string>
+	<string name="apply">Apply</string>
 </resources>

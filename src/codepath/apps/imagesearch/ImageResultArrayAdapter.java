@@ -9,7 +9,9 @@ import com.loopj.android.image.SmartImageView;
 
 import java.util.List;
 
-/** ImageResultArrayAdapter - custom array adapter for ImageResult */
+/**
+ * ImageResultArrayAdapter - custom array adapter for ImageResult
+ */
 public class ImageResultArrayAdapter extends ArrayAdapter<ImageResult> {
 
 	/** constructor */

@@ -2,7 +2,9 @@ package codepath.apps.imagesearch;
 
 import android.widget.AbsListView;
 
-/** EndlessScrollListener - allow AdapterView to scroll endlessly */
+/**
+ * EndlessScrollListener - allow AdapterView to scroll endlessly
+ */
 public abstract class EndlessScrollListener implements AbsListView.OnScrollListener {
 	/** min number of items to have below current scroll position before loading more */
 	private int visibleThreshold = 5;

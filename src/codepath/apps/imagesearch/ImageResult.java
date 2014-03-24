@@ -11,7 +11,9 @@ import java.util.ArrayList;
  * ImageResult - contains info about an image
  */
 public class ImageResult implements Serializable {
+	/** url for the full-sized image */
 	private String fullUrl;
+	/** url for the thumbnail image */
 	private String thumbUrl;
 
 	/** constructor */
