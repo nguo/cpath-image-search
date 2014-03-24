@@ -86,7 +86,6 @@ public class SettingsActivity extends Activity {
 			json.put(IMG_COLOR_KEY, color);
 			json.put(IMG_TYPE_KEY, type);
 			json.put(IMG_SITE_KEY, site);
-			Log.d("json", json.toString());
 			FileUtils.writeStringToFile(settingsFile, json.toString());
 		} catch (IOException e) {
 			e.printStackTrace();

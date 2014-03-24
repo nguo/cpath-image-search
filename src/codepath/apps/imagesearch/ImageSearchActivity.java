@@ -93,7 +93,6 @@ public class ImageSearchActivity extends Activity {
 		File settingsFile = new File(filesDir, "image_search_settings.txt");
 		try {
 			String content = FileUtils.readFileToString(settingsFile);
-			Log.d("json", content);
 			JSONObject json = new JSONObject(content);
 			settingsConfig = new SettingsConfig(json.getString(SettingsActivity.IMG_SIZE_KEY),
 					json.getString(SettingsActivity.IMG_COLOR_KEY),
@@ -101,11 +100,9 @@ public class ImageSearchActivity extends Activity {
 					json.getString(SettingsActivity.IMG_SITE_KEY));
 		} catch (IOException e) {
 			settingsConfig = new SettingsConfig();
-			Log.d("json", "io exception");
 			e.printStackTrace();
 		} catch (JSONException e) {
 			settingsConfig = new SettingsConfig();
-			Log.d("json", "json exception");
 			e.printStackTrace();
 		}
 	}
