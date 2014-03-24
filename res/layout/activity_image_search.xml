@@ -10,7 +10,7 @@
 			android:layout_height="fill_parent"
 			android:id="@+id/gvResults"
 			android:layout_alignParentLeft="true"
-			android:layout_below="@+id/etSearch"
+			android:layout_alignParentTop="true"
 			android:numColumns="3"/>
 
 </RelativeLayout>

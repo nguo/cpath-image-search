@@ -66,14 +66,13 @@ public class ImageSearchActivity extends Activity {
 		View v = mi.getActionView();
 		ibtnSearch = (ImageButton) v.findViewById(R.id.ibtnSearch);
 		ibtnSettings = (ImageButton) v.findViewById(R.id.ibtnSettings);
-		etSearch = (EditText) v.findViewById(R.id.editText);
+		etSearch = (EditText) v.findViewById(R.id.etSearch);
 		setupMenuItemListeners();
 		return true;
 	}
 
 	/** setup the views variables */
 	private void setupViews() {
-		//etSearch = (EditText) findViewById(R.id.etSearch);
 		gvResults = (GridView) findViewById(R.id.gvResults);
 	}
 
