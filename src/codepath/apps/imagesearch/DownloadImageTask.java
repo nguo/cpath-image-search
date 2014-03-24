@@ -4,9 +4,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.widget.ImageView;
+import org.apache.http.util.ByteArrayBuffer;
 
 import java.io.*;
 import java.net.URL;
+import java.net.URLConnection;
 
 /**
  * DownloadImageTask - Async task to download an image from a URL and set it to an ImageView
@@ -32,27 +34,28 @@ public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 	protected Bitmap doInBackground(String... urls) {
 		String src = urls[0];
 		Bitmap mIcon11 = null;
+		File target = new File(fileDir, fileName);
 		try {
 			// save the image to a file
 			URL url = new URL (src);
-			InputStream input = url.openStream();
-			try {
-				OutputStream output = new FileOutputStream (new File(fileDir, fileName));
-				try {
-					byte[] buffer = new byte[2048];
-					int bytesRead = 0;
-					while ((bytesRead = input.read(buffer, 0, buffer.length)) >= 0) {
-						output.write(buffer, 0, bytesRead);
-					}
+			URLConnection conn = url.openConnection();
+			InputStream is = conn.getInputStream();
+			BufferedInputStream bis = new BufferedInputStream(is);
+			ByteArrayBuffer baf = new ByteArrayBuffer(50);
+			int current = 0;
 
-				} finally {
-					output.close();
-				}
-			} finally {
-				input.close();
+			while ((current = bis.read()) != -1) {
+				baf.append((byte) current);
 			}
+
+			FileOutputStream fos = new FileOutputStream(target);
+			fos.write(baf.toByteArray());
+
+			fos.close();
+			is.close();
+
 			// downsize the bitmap so we don't run out of memory
-			mIcon11 = downsizeBitmap(new File(fileDir, fileName));;
+			mIcon11 = downsizeBitmap(target);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
