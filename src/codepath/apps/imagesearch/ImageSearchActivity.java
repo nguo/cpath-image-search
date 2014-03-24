@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class ImageSearchActivity extends Activity {
+	/** file name for the history */
+	private static final String HISTORY_FILE_NAME = "history.txt";
 	/** key for the extra param to pass with the intent between the image result activity */
 	public static final String IMAGE_RESULT_EXTRA = "image_result";
 	/** key for the extra param to pass between the settings activity */
@@ -41,6 +43,12 @@ public class ImageSearchActivity extends Activity {
 	private ImageButton ibtnSearch;
 	/** image button for settings button */
 	private ImageButton ibtnSettings;
+	/** View for the list of history */
+	ListView lvHistoryItems;
+	/** List of items inside the list view */
+	ArrayList<String> historyItems = new ArrayList<String>();
+	/** Array adapter for the list of items */
+	ArrayAdapter<String> historyAdapter;
 
 	/** list of image results we got back from the query */
 	private ArrayList<ImageResult> imagesResults = new ArrayList<ImageResult>();
@@ -63,7 +71,10 @@ public class ImageSearchActivity extends Activity {
 		getActionBar().setDisplayShowTitleEnabled(false);
 		resetCurrentIndex();
 		setupViews();
-		setupSettingsConfig();
+		readSettingsConfig();
+		readHistoryItems();
+		historyAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, historyItems);
+		lvHistoryItems.setAdapter(historyAdapter);
 		imageAdapter = new ImageResultArrayAdapter(this, imagesResults);
 		gvResults.setAdapter(imageAdapter);
 		setupListeners();
@@ -85,12 +96,13 @@ public class ImageSearchActivity extends Activity {
 	/** setup the views variables */
 	private void setupViews() {
 		gvResults = (GridView) findViewById(R.id.gvResults);
+		lvHistoryItems = (ListView) findViewById(R.id.lvHistoryItems);
 	}
 
-	/** setup the setting config object */
-	private void setupSettingsConfig() {
+	/** read in the setting config from file */
+	private void readSettingsConfig() {
 		File filesDir = getFilesDir();
-		File settingsFile = new File(filesDir, "image_search_settings.txt");
+		File settingsFile = new File(filesDir, SettingsActivity.SETTINGS_FILE_NAME);
 		try {
 			String content = FileUtils.readFileToString(settingsFile);
 			JSONObject json = new JSONObject(content);
@@ -107,11 +119,34 @@ public class ImageSearchActivity extends Activity {
 		}
 	}
 
+	/** read in the history items */
+	private void readHistoryItems() {
+		File filesDir = getFilesDir();
+		File historyFile = new File(filesDir, HISTORY_FILE_NAME);
+		try {
+			historyItems = new ArrayList<String>(FileUtils.readLines(historyFile));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/** save history items to file */
+	private void saveHistoryItems() {
+		File filesDir = getFilesDir();
+		File historyFile = new File(filesDir, HISTORY_FILE_NAME);
+		try {
+			FileUtils.writeLines(historyFile, historyItems);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	/** setup listeners for the views */
 	private void setupListeners() {
 		gvResults.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				// go to large image activity
 				Intent i = new Intent(getApplicationContext(), ImageDisplayActivity.class);
 				i.putExtra(IMAGE_RESULT_EXTRA, imagesResults.get(position));
 				startActivity(i);
@@ -123,6 +158,24 @@ public class ImageSearchActivity extends Activity {
 				requestMoreImages();
 			}
 		});
+		lvHistoryItems.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> aView, View item, int pos, long id) {
+				// delete history item
+				historyItems.remove(pos);
+				historyAdapter.notifyDataSetInvalidated();
+				saveHistoryItems();
+				return true;
+			}
+		});
+		lvHistoryItems.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> aView, View item, int pos, long id) {
+				// make query
+				etSearch.setText(historyItems.get(pos));
+				makeNewImageQueries();
+			}
+		});
 	}
 
 	/** setup listeners for the views inside the action bar */
@@ -131,21 +184,32 @@ public class ImageSearchActivity extends Activity {
 			@Override
 			public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 				if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+					// make query after "search" button clicked on keyboard
 					onSearchClick(null);
 					return true;
 				}
 				return false;
 			}
 		});
+		etSearch.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// clear text and show history
+				etSearch.setText("");
+				toggleHistory(true);
+			}
+		});
 		ibtnSettings.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				// show settings
 				onSettingsClick(null);
 			}
 		});
 		ibtnSearch.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				// make query
 				onSearchClick(null);
 			}
 		});
@@ -164,6 +228,19 @@ public class ImageSearchActivity extends Activity {
 		}
 	}
 
+	/** toggles the history list items and grid view below */
+	private void toggleHistory(boolean show) {
+		if (show) {
+			lvHistoryItems.setVisibility(View.VISIBLE);
+			gvResults.setAlpha((float) 0.1);
+			lvHistoryItems.setAlpha((float)0.9);
+		} else {
+			gvResults.setAlpha((float) 1);
+			lvHistoryItems.setAlpha((float) 0);
+			lvHistoryItems.setVisibility(View.INVISIBLE);
+		}
+	}
+
 	/** callback when settings menu button is clicked */
 	public void onSettingsClick(MenuItem mi) {
 		Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
@@ -173,18 +250,26 @@ public class ImageSearchActivity extends Activity {
 
 	/** settings menu callback */
 	public void onSearchClick(MenuItem mi) {
-		hideKeyboard(etSearch);
 		makeNewImageQueries();
 	}
 
 	/** makes new image queries (clears out old info) */
 	private void makeNewImageQueries() {
+		hideKeyboard(etSearch);
+		toggleHistory(false);
 		resetCurrentIndex();
 		imagesResults.clear();
 		currentQuery = etSearch.getText().toString();
 		if (currentQuery.length() > 0) {
+			if (historyItems.indexOf(currentQuery) < 0) {
+				// save query to history if it's not already saved
+				historyAdapter.add(currentQuery);
+				saveHistoryItems();
+			}
 			Toast.makeText(this, "Searching for " + currentQuery + "...", Toast.LENGTH_SHORT).show();
 			makeImageQueries();
+		} else {
+			Toast.makeText(this, "Please enter search term.", Toast.LENGTH_SHORT).show();
 		}
 	}
 

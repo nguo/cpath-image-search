@@ -20,7 +20,7 @@ import java.io.IOException;
  */
 public class SettingsActivity extends Activity {
 	/** name of the settings file to save to/read from */
-	private static final String SETTINGS_FILE_NAME = "image_search_settings.txt";
+	public static final String SETTINGS_FILE_NAME = "image_search_settings.txt";
 	/** json key for image size */
 	public static final String IMG_SIZE_KEY = "imgSize";
 	/** json key for image color */

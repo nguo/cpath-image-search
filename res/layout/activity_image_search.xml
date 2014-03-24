@@ -13,4 +13,11 @@
 			android:layout_alignParentTop="true"
 			android:numColumns="3"/>
 
+	<ListView
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:id="@+id/lvHistoryItems"
+			android:layout_alignLeft="@+id/gvResults"
+			android:layout_alignTop="@+id/gvResults"/>
+
 </RelativeLayout>
