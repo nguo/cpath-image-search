@@ -4,6 +4,9 @@ import android.content.Context;
 import android.util.AttributeSet;
 import com.loopj.android.image.SmartImageView;
 
+/**
+ * SquareSmartImageView - square version of SmartImageView
+ */
 public class SquareSmartImageView extends SmartImageView {
 	public SquareSmartImageView(Context context) {
 		super(context);
@@ -18,8 +21,7 @@ public class SquareSmartImageView extends SmartImageView {
 	}
 
 	@Override
-	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
-	{
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		setMeasuredDimension(getMeasuredWidth(), getMeasuredWidth()); //Snap to width
 	}

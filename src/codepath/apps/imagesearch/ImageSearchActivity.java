@@ -24,6 +24,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+/**
+ * ImageSearchActivity - entry point of app allowing user to search for image
+ */
 public class ImageSearchActivity extends Activity {
 	/** file name for the history */
 	private static final String HISTORY_FILE_NAME = "history.txt";

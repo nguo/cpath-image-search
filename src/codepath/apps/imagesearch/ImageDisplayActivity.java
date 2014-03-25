@@ -2,6 +2,10 @@ package codepath.apps.imagesearch;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -14,8 +18,9 @@ import android.widget.ProgressBar;
 import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import com.loopj.android.image.SmartImageView;
+import org.apache.http.util.ByteArrayBuffer;
 
-import java.io.File;
+import java.io.*;
 
 /**
  * ImageDisplayActivity - activity that displays the full image and related info
@@ -24,10 +29,14 @@ public class ImageDisplayActivity extends Activity {
 	/** downloaded image file name */
 	private static final String DISPLAY_IMAGE_FILE_NAME = "displayImage.png";
 
+	/** menu item */
+	private MenuItem mi;
 	/** share action provider on the menu */
 	private ShareActionProvider miShareAction;
 	/** file directory for the image */
 	private File downloadsDir;
+	/** image view */
+	private SmartImageView ivLargeImg;
 	/** text view displaying image info */
 	private TextView tvImageInfo;
 	/** image result */
@@ -44,8 +53,9 @@ public class ImageDisplayActivity extends Activity {
 		imageResult = (ImageResult) getIntent().getSerializableExtra(ImageSearchActivity.IMAGE_RESULT_EXTRA);
 		tvImageInfo = (TextView) findViewById(R.id.tvImageInfo);
 		tvImageInfo.setMovementMethod(LinkMovementMethod.getInstance());
+		ivLargeImg = (SmartImageView) findViewById(R.id.ivLargeImg);
 		pbLoading = (ProgressBar) findViewById(R.id.pbLoading);
-		new DownloadImageTask((SmartImageView) findViewById(R.id.ivLargeImg), downloadsDir, DISPLAY_IMAGE_FILE_NAME, this).execute(imageResult.getFullUrl());
+		new DownsizeImageTask(ivLargeImg, this).execute(imageResult.getFullUrl());
 	}
 
 	@Override
@@ -53,27 +63,100 @@ public class ImageDisplayActivity extends Activity {
 		// Inflate menu resource file.
 		getMenuInflater().inflate(R.menu.image_display, menu);
 		// Locate MenuItem with ShareActionProvider
-		MenuItem item = menu.findItem(R.id.miShare);
+		mi = menu.findItem(R.id.miShare);
+		// disable menu item while share is hidden
+		mi.setEnabled(false);
 		// Fetch and store ShareActionProvider
-		miShareAction = (ShareActionProvider) item.getActionProvider();
+		miShareAction = (ShareActionProvider) mi.getActionProvider();
 		// Return true to display menu
 		return true;
 	}
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-		Intent shareIntent = new Intent(Intent.ACTION_SEND);
-		shareIntent.setType("image/*");
-		shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://"+downloadsDir+"/"+DISPLAY_IMAGE_FILE_NAME));
-		miShareAction.setShareIntent(shareIntent);
+		setupShareIntent();
+		miShareAction.setOnShareTargetSelectedListener(new ShareActionProvider.OnShareTargetSelectedListener() {
+			@Override
+			public boolean onShareTargetSelected(ShareActionProvider source, Intent intent) {
+				// hide menu item so that the user can't spam share
+				mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+				downloadBitmapFromImageView(ivLargeImg);
+				// re-show menu item
+				mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+				return false;
+			}
+		});
 		return true;
 	}
 
-	/** called once image has loaded */
-	public void onImageLoaded() {
+	/** setup share intent */
+	private void setupShareIntent() {
+		Intent shareIntent = new Intent(Intent.ACTION_SEND);
+		shareIntent.setType("image/*");
+		shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(downloadsDir, DISPLAY_IMAGE_FILE_NAME)));
+		miShareAction.setShareIntent(shareIntent);
+	}
+
+	/**
+	 * called once image has loaded in downsizeimagetask
+	 * @param success	if true, then the downsizing succeeded and the image view's bitmap was correctly set
+	 */
+	public void onImageLoaded(boolean success) {
+		if (!success) {
+			// when we fail to set the image from the full url, set it to the thumbnail
+			ivLargeImg.setImageUrl(imageResult.getThumbUrl());
+		}
+		// show share menu item
+		mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 		// hide progress and display text
 		pbLoading.setVisibility(View.INVISIBLE);
 		tvImageInfo.setText(Html.fromHtml(imageResult.getTitle() + " (" + imageResult.getContent() + ") "
 				+ "<a href=\"" + imageResult.getFullUrl() + "\">" + imageResult.getFullUrl() + "</a>"));
+	}
+
+	/** downloads the bitmap found in the image view to local file */
+	public void downloadBitmapFromImageView(SmartImageView imageView) {
+		Bitmap bitmap = getImageBitmap(imageView);
+		// Write image to default external storage directory
+		File target = new File(downloadsDir, DISPLAY_IMAGE_FILE_NAME);
+		try {
+			// save downsized bitmap to file (to use later when we share)
+			ByteArrayOutputStream bmpos = new ByteArrayOutputStream();
+			bitmap.compress(Bitmap.CompressFormat.PNG, 90, bmpos);
+			byte[] byteArray = bmpos.toByteArray();
+			ByteArrayInputStream is = new ByteArrayInputStream(byteArray);
+			BufferedInputStream bis = new BufferedInputStream(is);
+			ByteArrayBuffer baf = new ByteArrayBuffer(1024);
+			int current = 0;
+			while ((current = bis.read()) != -1) {
+				baf.append((byte) current);
+			}
+			FileOutputStream fos = new FileOutputStream(target);
+			fos.write(baf.toByteArray());
+
+			fos.close();
+			bis.close();
+			is.close();
+		} catch (RuntimeException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/** @return the bitmap for the given image view */
+	public Bitmap getImageBitmap(SmartImageView imageView) {
+		Drawable drawable = imageView.getDrawable();
+		Bitmap bmp;
+		if (drawable instanceof BitmapDrawable){
+			bmp = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+		} else { // workaround to convert color to bitmap
+			bmp = Bitmap.createBitmap(drawable.getBounds().width(),
+					drawable.getBounds().height(), Bitmap.Config.ARGB_8888);
+			Canvas canvas = new Canvas(bmp);
+			drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+			drawable.draw(canvas);
+		}
+		return bmp;
 	}
 }
