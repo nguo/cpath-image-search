@@ -36,7 +36,7 @@ public class ImageSearchActivity extends Activity {
 	public static final int NUM_IMAGES_PER_REQUEST = 8;
 
 	/** edit text to type in search term */
-	private EditText etSearch;
+	private KeyboardEventEditText etSearch;
 	/** grid view of image results */
 	private GridView gvResults;
 	/** image button for search button */
@@ -88,7 +88,7 @@ public class ImageSearchActivity extends Activity {
 		View v = mi.getActionView();
 		ibtnSearch = (ImageButton) v.findViewById(R.id.ibtnSearch);
 		ibtnSettings = (ImageButton) v.findViewById(R.id.ibtnSettings);
-		etSearch = (EditText) v.findViewById(R.id.etSearch);
+		etSearch = (KeyboardEventEditText) v.findViewById(R.id.etSearch);
 		setupMenuItemListeners();
 		return true;
 	}
@@ -224,7 +224,7 @@ public class ImageSearchActivity extends Activity {
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode == RESULT_OK && requestCode == SETTINGS_REQUEST_CODE) {
 			settingsConfig = (SettingsConfig) data.getSerializableExtra(SETTINGS_EXTRA);
-			makeNewImageQueries();
+			makeNewImageQueries(currentQuery); // redo search
 		}
 	}
 
@@ -241,6 +241,12 @@ public class ImageSearchActivity extends Activity {
 		}
 	}
 
+	/** when go back from the edit text without searching for anything new */
+	public void onNoNewSearch() {
+		toggleHistory(false);
+		etSearch.setText(currentQuery);
+	}
+
 	/** callback when settings menu button is clicked */
 	public void onSettingsClick(MenuItem mi) {
 		Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
@@ -253,13 +259,18 @@ public class ImageSearchActivity extends Activity {
 		makeNewImageQueries();
 	}
 
-	/** makes new image queries (clears out old info) */
+	/** makes new image queries (clears out previous search) */
 	private void makeNewImageQueries() {
+		makeNewImageQueries(etSearch.getText().toString());
+	}
+
+	/** makes new image queries (clears out old info) using the query string passed in */
+	private void makeNewImageQueries(String queryString) {
 		hideKeyboard(etSearch);
 		toggleHistory(false);
 		resetCurrentIndex();
 		imagesResults.clear();
-		currentQuery = etSearch.getText().toString();
+		currentQuery = queryString;
 		if (currentQuery.length() > 0) {
 			if (historyItems.indexOf(currentQuery) < 0) {
 				// save query to history if it's not already saved
