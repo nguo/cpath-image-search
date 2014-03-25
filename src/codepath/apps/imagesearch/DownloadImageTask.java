@@ -3,7 +3,9 @@ package codepath.apps.imagesearch;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.text.Html;
 import android.widget.ImageView;
+import android.widget.TextView;
 import org.apache.http.util.ByteArrayBuffer;
 
 import java.io.*;
@@ -20,14 +22,20 @@ public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 	private String fileName;
 	/** image view to set image to */
 	private ImageView bmImage;
+	/** text view displaying info of image */
+	private TextView tvInfo;
+	/** image result */
+	private ImageResult imageResult;
 
 	/**
 	 * Constructor
 	 */
-	public DownloadImageTask(ImageView bmImage, File fileDir, String fileName) {
+	public DownloadImageTask(ImageView bmImage, File fileDir, String fileName, TextView tvInfo, ImageResult imageResult) {
 		this.bmImage = bmImage;
 		this.fileDir = fileDir;
 		this.fileName = fileName;
+		this.tvInfo = tvInfo;
+		this.imageResult = imageResult;
 	}
 
 	@Override
@@ -66,6 +74,8 @@ public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 	protected void onPostExecute(Bitmap result) {
 		//set image of your imageview
 		bmImage.setImageBitmap(result);
+		tvInfo.setText(Html.fromHtml(imageResult.getTitle() + " (" + imageResult.getContent() + ") "
+				+ "<a href=\""+imageResult.getFullUrl()+"\">"+imageResult.getFullUrl()+"</a>"));
 	}
 
 	/**

@@ -21,25 +21,21 @@ public class ImageResult implements Serializable {
 	private String visibleUrl;
 	/** image content (description) with html format */
 	private String content;
-	/** image content (description) without html formatting */
-	private String contentNoFormatting;
 
 	/** constructor */
 	public ImageResult(JSONObject json) {
 		try {
 			fullUrl = json.getString("url");
 			thumbUrl = json.getString("tbUrl");
-			title = json.getString("titleNoFormatting");
+			title = json.getString("title");
 			visibleUrl = json.getString("visibleUrl");
 			content = json.getString("content");
-			contentNoFormatting = json.getString("contentNoFormatting");
 		} catch (JSONException e) {
 			fullUrl = null;
 			thumbUrl = null;
 			title = null;
 			visibleUrl = null;
 			content = null;
-			contentNoFormatting = null;
 		}
 	}
 
@@ -63,10 +59,6 @@ public class ImageResult implements Serializable {
 
 	public String getContent() {
 		return content;
-	}
-
-	public String getContentNoFormatting() {
-		return contentNoFormatting;
 	}
 
 	@Override

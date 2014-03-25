@@ -5,9 +5,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ShareActionProvider;
+import android.widget.TextView;
 import com.loopj.android.image.SmartImageView;
 
 import java.io.File;
@@ -31,7 +33,9 @@ public class ImageDisplayActivity extends Activity {
 		downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
 		ImageResult imageResult = (ImageResult) getIntent().getSerializableExtra(ImageSearchActivity.IMAGE_RESULT_EXTRA);
 		SmartImageView ivLargeImg = (SmartImageView) findViewById(R.id.ivLargeImg);
-		new DownloadImageTask(ivLargeImg, downloadsDir, DISPLAY_IMAGE_FILE_NAME).execute(imageResult.getFullUrl());
+		TextView tvLargeDesc = (TextView) findViewById(R.id.tvLargeDesc);
+		tvLargeDesc.setMovementMethod(LinkMovementMethod.getInstance());
+		new DownloadImageTask(ivLargeImg, downloadsDir, DISPLAY_IMAGE_FILE_NAME, tvLargeDesc, imageResult).execute(imageResult.getFullUrl());
 	}
 
 	@Override
