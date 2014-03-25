@@ -3,6 +3,8 @@ package codepath.apps.imagesearch;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -221,6 +223,14 @@ public class ImageSearchActivity extends Activity {
 		((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(v.getWindowToken(), 0);
 	}
 
+	/** @return true if there is network connection */
+	private boolean isNetworkAvailable() {
+		ConnectivityManager connectivityManager
+				= (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+		return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+	}
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode == RESULT_OK && requestCode == SETTINGS_REQUEST_CODE) {
@@ -272,7 +282,9 @@ public class ImageSearchActivity extends Activity {
 		resetCurrentIndex();
 		imagesResults.clear();
 		currentQuery = queryString;
-		if (currentQuery.length() > 0) {
+		if (!isNetworkAvailable()) {
+			Toast.makeText(this, "Please connect to a network.", Toast.LENGTH_LONG).show();
+		} else if (currentQuery.length() > 0) {
 			if (historyItems.indexOf(currentQuery) < 0) {
 				// save query to history if it's not already saved
 				historyItems.addFirst(currentQuery);
@@ -282,7 +294,7 @@ public class ImageSearchActivity extends Activity {
 			Toast.makeText(this, "Searching for " + currentQuery + "...", Toast.LENGTH_SHORT).show();
 			makeImageQueries();
 		} else {
-			Toast.makeText(this, "Please enter search term.", Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, "Please enter search term.", Toast.LENGTH_LONG).show();
 		}
 	}
 
