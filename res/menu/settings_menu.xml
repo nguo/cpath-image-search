@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item
+			android:id="@+id/miSettings"
+			android:icon="@drawable/ic_delete"
+			android:onClick="onResetSettings"
+			android:title="@string/reset"
+			android:showAsAction="always" />
+</menu>

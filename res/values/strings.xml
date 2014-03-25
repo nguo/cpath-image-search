@@ -11,4 +11,5 @@
 	<string name="image_site_hint">example.com</string>
 	<string name="share">Share</string>
 	<string name="apply">Apply</string>
+	<string name="reset">Reset</string>
 </resources>

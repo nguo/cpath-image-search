@@ -39,7 +39,7 @@ public class ImageDisplayActivity extends Activity {
 		// Inflate menu resource file.
 		getMenuInflater().inflate(R.menu.image_display, menu);
 		// Locate MenuItem with ShareActionProvider
-		MenuItem item = menu.findItem(R.id.menu_item_share);
+		MenuItem item = menu.findItem(R.id.miShare);
 		// Fetch and store ShareActionProvider
 		miShareAction = (ShareActionProvider) item.getActionProvider();
 		// Return true to display menu

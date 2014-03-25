@@ -3,9 +3,13 @@ package codepath.apps.imagesearch;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONException;
@@ -46,6 +50,13 @@ public class SettingsActivity extends Activity {
 		updateViewsFromConfig((SettingsConfig) getIntent().getSerializableExtra(ImageSearchActivity.SETTINGS_EXTRA));
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater menuInflater = getMenuInflater();
+		menuInflater.inflate(R.menu.settings_menu, menu);
+		return true;
+	}
+
 	/** setup the views */
 	private void setupViews() {
 		spImgSize = (Spinner) findViewById(R.id.spImgSize);
@@ -66,6 +77,14 @@ public class SettingsActivity extends Activity {
 	private void setSelectionByItem(Spinner sp, String item) {
 		ArrayAdapter adapter = (ArrayAdapter) sp.getAdapter();
 		sp.setSelection(adapter.getPosition(item));
+	}
+
+	/** callback when clicking on reset menu item */
+	public void onResetSettings(MenuItem mi) {
+		spImgSize.setSelection(0);
+		spImgColor.setSelection(0);
+		spImgType.setSelection(0);
+		etImgSite.setText("");
 	}
 
 	/** callback when apply button is clicked */
