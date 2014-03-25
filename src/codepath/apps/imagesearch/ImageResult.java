@@ -15,15 +15,31 @@ public class ImageResult implements Serializable {
 	private String fullUrl;
 	/** url for the thumbnail image */
 	private String thumbUrl;
+	/** image title */
+	private String title;
+	/** host url for image */
+	private String visibleUrl;
+	/** image content (description) with html format */
+	private String content;
+	/** image content (description) without html formatting */
+	private String contentNoFormatting;
 
 	/** constructor */
 	public ImageResult(JSONObject json) {
 		try {
 			fullUrl = json.getString("url");
 			thumbUrl = json.getString("tbUrl");
+			title = json.getString("titleNoFormatting");
+			visibleUrl = json.getString("visibleUrl");
+			content = json.getString("content");
+			contentNoFormatting = json.getString("contentNoFormatting");
 		} catch (JSONException e) {
 			fullUrl = null;
 			thumbUrl = null;
+			title = null;
+			visibleUrl = null;
+			content = null;
+			contentNoFormatting = null;
 		}
 	}
 
@@ -35,6 +51,22 @@ public class ImageResult implements Serializable {
 	/** getter for thumb url */
 	public String getThumbUrl() {
 		return thumbUrl;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public String getVisibleUrl() {
+		return visibleUrl;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public String getContentNoFormatting() {
+		return contentNoFormatting;
 	}
 
 	@Override

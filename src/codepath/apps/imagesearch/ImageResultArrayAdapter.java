@@ -4,8 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import com.loopj.android.image.SmartImageView;
+import android.widget.*;
 
 import java.util.List;
 
@@ -21,17 +20,26 @@ public class ImageResultArrayAdapter extends ArrayAdapter<ImageResult> {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		ImageResult imageInfo = getItem(position);
-		SmartImageView ivImage;
-		if (convertView == null) {
+		ImageResult imageResult = getItem(position);
+		View layout = convertView;
+		SquareSmartImageView ivSquare;
+		TextView tvSquare;
+
+		if(layout == null) {
 			LayoutInflater inflater = LayoutInflater.from(getContext());
-			ivImage = (SmartImageView) inflater.inflate(R.layout.item_image_result, parent, false);
-		} else {
-			// reusable view
-			ivImage = (SmartImageView) convertView;
-			ivImage.setImageResource(android.R.color.transparent);
+			layout = inflater.inflate(R.layout.item_image_result, parent, false);
 		}
-		ivImage.setImageUrl(imageInfo.getThumbUrl());
-		return ivImage;
+
+		ivSquare = (SquareSmartImageView)layout.findViewById(R.id.ivSquare);
+		tvSquare = (TextView)layout.findViewById(R.id.tvSquare);
+
+		ivSquare.setImageUrl(imageResult.getThumbUrl());
+		String visibleUrl = imageResult.getVisibleUrl();
+		if (visibleUrl.indexOf("www.") == 0) {
+			visibleUrl = visibleUrl.substring(4);
+		}
+		tvSquare.setText(visibleUrl);
+
+		return layout;
 	}
 }

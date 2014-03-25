@@ -11,6 +11,8 @@
 			android:id="@+id/gvResults"
 			android:layout_alignParentLeft="true"
 			android:layout_alignParentTop="true"
+			android:verticalSpacing="0dp"
+			android:horizontalSpacing="0dp"
 			android:numColumns="3"/>
 
 	<ListView
