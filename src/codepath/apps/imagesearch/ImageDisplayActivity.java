@@ -5,9 +5,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import com.loopj.android.image.SmartImageView;
@@ -25,17 +28,24 @@ public class ImageDisplayActivity extends Activity {
 	private ShareActionProvider miShareAction;
 	/** file directory for the image */
 	private File downloadsDir;
+	/** text view displaying image info */
+	private TextView tvImageInfo;
+	/** image result */
+	private ImageResult imageResult;
+	/** progress bar indicating loading */
+	private ProgressBar pbLoading;
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_image_display);
 		downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-		ImageResult imageResult = (ImageResult) getIntent().getSerializableExtra(ImageSearchActivity.IMAGE_RESULT_EXTRA);
-		SmartImageView ivLargeImg = (SmartImageView) findViewById(R.id.ivLargeImg);
-		TextView tvLargeDesc = (TextView) findViewById(R.id.tvLargeDesc);
-		tvLargeDesc.setMovementMethod(LinkMovementMethod.getInstance());
-		new DownloadImageTask(ivLargeImg, downloadsDir, DISPLAY_IMAGE_FILE_NAME, tvLargeDesc, imageResult).execute(imageResult.getFullUrl());
+		imageResult = (ImageResult) getIntent().getSerializableExtra(ImageSearchActivity.IMAGE_RESULT_EXTRA);
+		tvImageInfo = (TextView) findViewById(R.id.tvImageInfo);
+		tvImageInfo.setMovementMethod(LinkMovementMethod.getInstance());
+		pbLoading = (ProgressBar) findViewById(R.id.pbLoading);
+		new DownloadImageTask((SmartImageView) findViewById(R.id.ivLargeImg), downloadsDir, DISPLAY_IMAGE_FILE_NAME, this).execute(imageResult.getFullUrl());
 	}
 
 	@Override
@@ -57,5 +67,13 @@ public class ImageDisplayActivity extends Activity {
 		shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://"+downloadsDir+"/"+DISPLAY_IMAGE_FILE_NAME));
 		miShareAction.setShareIntent(shareIntent);
 		return true;
+	}
+
+	/** called once image has loaded */
+	public void onImageLoaded() {
+		// hide progress and display text
+		pbLoading.setVisibility(View.INVISIBLE);
+		tvImageInfo.setText(Html.fromHtml(imageResult.getTitle() + " (" + imageResult.getContent() + ") "
+				+ "<a href=\"" + imageResult.getFullUrl() + "\">" + imageResult.getFullUrl() + "</a>"));
 	}
 }

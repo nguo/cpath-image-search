@@ -5,7 +5,6 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.text.Html;
 import android.widget.ImageView;
-import android.widget.TextView;
 import org.apache.http.util.ByteArrayBuffer;
 
 import java.io.*;
@@ -22,20 +21,17 @@ public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 	private String fileName;
 	/** image view to set image to */
 	private ImageView bmImage;
-	/** text view displaying info of image */
-	private TextView tvInfo;
-	/** image result */
-	private ImageResult imageResult;
+	/** activity that executed this task */
+	private ImageDisplayActivity sourceActivity;
 
 	/**
 	 * Constructor
 	 */
-	public DownloadImageTask(ImageView bmImage, File fileDir, String fileName, TextView tvInfo, ImageResult imageResult) {
+	public DownloadImageTask(ImageView bmImage, File fileDir, String fileName, ImageDisplayActivity sourceActivity) {
 		this.bmImage = bmImage;
 		this.fileDir = fileDir;
 		this.fileName = fileName;
-		this.tvInfo = tvInfo;
-		this.imageResult = imageResult;
+		this.sourceActivity = sourceActivity;
 	}
 
 	@Override
@@ -74,8 +70,8 @@ public class DownloadImageTask extends AsyncTask<String, Void, Bitmap> {
 	protected void onPostExecute(Bitmap result) {
 		//set image of your imageview
 		bmImage.setImageBitmap(result);
-		tvInfo.setText(Html.fromHtml(imageResult.getTitle() + " (" + imageResult.getContent() + ") "
-				+ "<a href=\""+imageResult.getFullUrl()+"\">"+imageResult.getFullUrl()+"</a>"));
+		sourceActivity.onImageLoaded();
+
 	}
 
 	/**
