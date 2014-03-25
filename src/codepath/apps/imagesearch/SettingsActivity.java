@@ -1,15 +1,16 @@
 package codepath.apps.imagesearch;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Spinner;
 import org.apache.commons.io.FileUtils;
 import org.json.JSONException;
@@ -110,6 +111,9 @@ public class SettingsActivity extends Activity {
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
+
+		// hide keyboard
+		((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE)).hideSoftInputFromWindow(v.getWindowToken(), 0);
 
 		// create settings object and pass it back
 		SettingsConfig settings = new SettingsConfig(size, color, type, site);
