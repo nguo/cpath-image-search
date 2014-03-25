@@ -44,10 +44,11 @@ public class DownsizeImageTask extends AsyncTask<String, Void, Bitmap> {
 	@Override
 	protected void onPostExecute(Bitmap result) {
 		//set image of your imageview
-		if (result != null) {
+		boolean loadSuccess = (result != null);
+		if (loadSuccess) {
 			bmImage.setImageBitmap(result);
 		}
-		sourceActivity.onImageLoaded(result != null);
+		sourceActivity.onImageLoaded(loadSuccess);
 	}
 
 	/**
