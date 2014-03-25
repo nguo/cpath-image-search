@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="app_name">Pic Search</string>
+	<string name="display_activity_name">Enlarged Image</string>
 	<string name="search_hint">Enter Search Term</string>
 	<string name="search_desc">Search for Images</string>
 	<string name="settings_desc">Settings</string>
