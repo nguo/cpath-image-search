@@ -12,4 +12,5 @@
 	<string name="share">Share</string>
 	<string name="apply">Apply</string>
 	<string name="reset">Reset</string>
+	<color name="actionbar_color">#00000000</color>
 </resources>
