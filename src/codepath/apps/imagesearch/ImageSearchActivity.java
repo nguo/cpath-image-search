@@ -20,6 +20,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class ImageSearchActivity extends Activity {
 	/** file name for the history */
@@ -46,7 +47,7 @@ public class ImageSearchActivity extends Activity {
 	/** View for the list of history */
 	ListView lvHistoryItems;
 	/** List of items inside the list view */
-	ArrayList<String> historyItems = new ArrayList<String>();
+	LinkedList<String> historyItems = new LinkedList<String>();
 	/** Array adapter for the list of items */
 	ArrayAdapter<String> historyAdapter;
 
@@ -124,7 +125,7 @@ public class ImageSearchActivity extends Activity {
 		File filesDir = getFilesDir();
 		File historyFile = new File(filesDir, HISTORY_FILE_NAME);
 		try {
-			historyItems = new ArrayList<String>(FileUtils.readLines(historyFile));
+			historyItems = new LinkedList<String>(FileUtils.readLines(historyFile));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -274,7 +275,8 @@ public class ImageSearchActivity extends Activity {
 		if (currentQuery.length() > 0) {
 			if (historyItems.indexOf(currentQuery) < 0) {
 				// save query to history if it's not already saved
-				historyAdapter.add(currentQuery);
+				historyItems.addFirst(currentQuery);
+				historyAdapter.notifyDataSetChanged();
 				saveHistoryItems();
 			}
 			Toast.makeText(this, "Searching for " + currentQuery + "...", Toast.LENGTH_SHORT).show();
