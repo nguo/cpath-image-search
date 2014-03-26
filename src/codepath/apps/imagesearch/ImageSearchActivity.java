@@ -288,12 +288,17 @@ public class ImageSearchActivity extends Activity {
 		if (!isNetworkAvailable()) {
 			Toast.makeText(this, "Please connect to a network.", Toast.LENGTH_LONG).show();
 		} else if (currentQuery.length() > 0) {
+			int historyIndex = historyItems.indexOf(currentQuery);
 			if (historyItems.indexOf(currentQuery) < 0) {
 				// save query to history if it's not already saved
 				historyItems.addFirst(currentQuery);
-				historyAdapter.notifyDataSetChanged();
-				saveHistoryItems();
+			} else {
+				// move query to top of history if it's already in history
+				String item = historyItems.remove(historyIndex);
+				historyItems.addFirst(item);
 			}
+			historyAdapter.notifyDataSetChanged();
+			saveHistoryItems();
 			Toast.makeText(this, "Searching for " + currentQuery + "...", Toast.LENGTH_SHORT).show();
 			makeImageQueries();
 		} else {
