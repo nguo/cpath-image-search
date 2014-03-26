@@ -18,6 +18,7 @@ import android.widget.ProgressBar;
 import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import com.loopj.android.image.SmartImageView;
+import org.apache.commons.io.FileUtils;
 import org.apache.http.util.ByteArrayBuffer;
 
 import java.io.*;
@@ -50,6 +51,10 @@ public class ImageDisplayActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_image_display);
 		downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+		if (!downloadsDir.exists()) {
+			downloadsDir.mkdirs();
+		}
+
 		imageResult = (ImageResult) getIntent().getSerializableExtra(ImageSearchActivity.IMAGE_RESULT_EXTRA);
 		tvImageInfo = (TextView) findViewById(R.id.tvImageInfo);
 		tvImageInfo.setMovementMethod(LinkMovementMethod.getInstance());
@@ -93,8 +98,13 @@ public class ImageDisplayActivity extends Activity {
 	private void setupShareIntent() {
 		Intent shareIntent = new Intent(Intent.ACTION_SEND);
 		shareIntent.setType("image/*");
-		shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(downloadsDir, DISPLAY_IMAGE_FILE_NAME)));
+		shareIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(getImageFile()));
 		miShareAction.setShareIntent(shareIntent);
+	}
+
+	/** @return a new file object of the image file */
+	private File getImageFile() {
+		return (new File(downloadsDir + "/" + DISPLAY_IMAGE_FILE_NAME));
 	}
 
 	/**
@@ -118,28 +128,12 @@ public class ImageDisplayActivity extends Activity {
 	public void downloadBitmapFromImageView(SmartImageView imageView) {
 		Bitmap bitmap = getImageBitmap(imageView);
 		// Write image to default external storage directory
-		File target = new File(downloadsDir, DISPLAY_IMAGE_FILE_NAME);
+		File target = getImageFile();
 		try {
-			// save downsized bitmap to file (to use later when we share)
-			ByteArrayOutputStream bmpos = new ByteArrayOutputStream();
-			bitmap.compress(Bitmap.CompressFormat.PNG, 90, bmpos);
-			byte[] byteArray = bmpos.toByteArray();
-			ByteArrayInputStream is = new ByteArrayInputStream(byteArray);
-			BufferedInputStream bis = new BufferedInputStream(is);
-			ByteArrayBuffer baf = new ByteArrayBuffer(1024);
-			int current = 0;
-			while ((current = bis.read()) != -1) {
-				baf.append((byte) current);
-			}
-			FileOutputStream fos = new FileOutputStream(target);
-			fos.write(baf.toByteArray());
-
+			FileOutputStream fos = new FileOutputStream(target, false);
+			bitmap.compress(Bitmap.CompressFormat.PNG, 90, fos);
 			fos.close();
-			bis.close();
-			is.close();
-		} catch (RuntimeException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}

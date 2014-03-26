@@ -57,6 +57,7 @@ public class DownsizeImageTask extends AsyncTask<String, Void, Bitmap> {
 	 * @return		shrunken bitmap
 	 */
 	private Bitmap downsizeBitmapFromUrl(URL url) {
+		Bitmap downsized = null;
 		try {
 			//Decode image size
 			BitmapFactory.Options o = new BitmapFactory.Options();
@@ -74,11 +75,15 @@ public class DownsizeImageTask extends AsyncTask<String, Void, Bitmap> {
 			//Decode with inSampleSize
 			BitmapFactory.Options o2 = new BitmapFactory.Options();
 			o2.inSampleSize=scale;
-			return BitmapFactory.decodeStream(url.openConnection().getInputStream(), null, o2);
+			downsized = BitmapFactory.decodeStream(url.openConnection().getInputStream(), null, o2);
+			return downsized;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			return null;
 		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		} catch (RuntimeException e) {
 			e.printStackTrace();
 			return null;
 		}
