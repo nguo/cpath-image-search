@@ -18,10 +18,9 @@ import android.widget.ProgressBar;
 import android.widget.ShareActionProvider;
 import android.widget.TextView;
 import com.loopj.android.image.SmartImageView;
-import org.apache.commons.io.FileUtils;
-import org.apache.http.util.ByteArrayBuffer;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
 
 /**
  * ImageDisplayActivity - activity that displays the full image and related info
@@ -44,7 +43,6 @@ public class ImageDisplayActivity extends Activity {
 	private ImageResult imageResult;
 	/** progress bar indicating loading */
 	private ProgressBar pbLoading;
-
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -77,23 +75,6 @@ public class ImageDisplayActivity extends Activity {
 		return true;
 	}
 
-	@Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		setupShareIntent();
-		miShareAction.setOnShareTargetSelectedListener(new ShareActionProvider.OnShareTargetSelectedListener() {
-			@Override
-			public boolean onShareTargetSelected(ShareActionProvider source, Intent intent) {
-				// hide menu item so that the user can't spam share
-				mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-				downloadBitmapFromImageView(ivLargeImg);
-				// re-show menu item
-				mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-				return false;
-			}
-		});
-		return true;
-	}
-
 	/** setup share intent */
 	private void setupShareIntent() {
 		Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -116,6 +97,8 @@ public class ImageDisplayActivity extends Activity {
 			// when we fail to set the image from the full url, set it to the thumbnail
 			ivLargeImg.setImageUrl(imageResult.getThumbUrl());
 		}
+		downloadBitmapFromImageView(ivLargeImg);
+		setupShareIntent();
 		// show share menu item
 		mi.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
 		// hide progress and display text
